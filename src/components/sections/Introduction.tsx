@@ -1,13 +1,13 @@
 
-import { useEffect, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { setupFadeInAnimations } from '../../lib/gsapUtils';
+import { Globe2, Wind, TreePine, Mountain } from 'lucide-react';
 
 const Introduction = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!sectionRef.current) return;
-    
     setupFadeInAnimations('.fade-element');
   }, []);
 
@@ -21,64 +21,60 @@ const Introduction = () => {
       <div className="absolute top-20 left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-60 h-60 bg-accent/10 rounded-full blur-3xl"></div>
       
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-4xl font-bold mb-10 text-center fade-element">
-          Understanding Our Climate Challenge
+      <div className="max-w-5xl mx-auto px-4">
+        <h2 className="text-4xl font-bold mb-16 text-center fade-element">
+          Climate Impact Visualization
         </h2>
         
-        <div className="space-y-8 text-lg">
-          <p className="fade-element">
-            Climate change represents one of the most significant challenges of our time. 
-            The Earth's climate has always fluctuated naturally over long periods, but the 
-            rapid changes we're experiencing today are primarily driven by human activities.
-          </p>
-          
-          <div className="p-6 glassmorphism fade-element">
-            <h3 className="text-xl font-semibold mb-3 text-primary">The Greenhouse Effect</h3>
-            <p>
-              Greenhouse gases in our atmosphere, like carbon dioxide (CO₂) and methane (CH₄), 
-              act like a blanket, trapping heat and warming the planet. This natural process 
-              is essential for life on Earth, but human activities have intensified it by 
-              dramatically increasing greenhouse gas concentrations.
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-element">
+          <div className="p-6 glassmorphism hover:scale-105 transition-transform duration-300">
+            <div className="flex justify-center mb-4">
+              <Globe2 className="w-12 h-12 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-center">Global Impact</h3>
+            <p className="text-sm text-center text-muted-foreground">
+              Worldwide temperature changes and their effects
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-element">
-            <div className="p-5 glassmorphism">
-              <h4 className="font-semibold text-lg mb-2">Primary Causes</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Burning fossil fuels for energy</li>
-                <li>Deforestation and land use changes</li>
-                <li>Industrial processes</li>
-                <li>Agricultural practices</li>
-              </ul>
+          <div className="p-6 glassmorphism hover:scale-105 transition-transform duration-300">
+            <div className="flex justify-center mb-4">
+              <Wind className="w-12 h-12 text-primary" />
             </div>
-            
-            <div className="p-5 glassmorphism">
-              <h4 className="font-semibold text-lg mb-2">Observable Impacts</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Rising global temperatures</li>
-                <li>Melting ice sheets and glaciers</li>
-                <li>Sea level rise</li>
-                <li>Extreme weather events</li>
-              </ul>
-            </div>
+            <h3 className="text-xl font-semibold mb-2 text-center">Atmosphere</h3>
+            <p className="text-sm text-center text-muted-foreground">
+              Greenhouse gas concentrations
+            </p>
           </div>
           
-          <p className="fade-element">
-            Through interactive data visualization, this project aims to help you explore 
-            and understand these complex climate patterns. By making the data accessible 
-            and engaging, we hope to inspire informed action and collaboration on climate solutions.
-          </p>
-          
-          <div className="fade-element flex justify-center mt-12">
-            <a 
-              href="#methodology" 
-              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3 rounded-lg transition-colors"
-            >
-              Continue to Methodology
-            </a>
+          <div className="p-6 glassmorphism hover:scale-105 transition-transform duration-300">
+            <div className="flex justify-center mb-4">
+              <TreePine className="w-12 h-12 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-center">Ecosystems</h3>
+            <p className="text-sm text-center text-muted-foreground">
+              Impact on natural habitats
+            </p>
           </div>
+          
+          <div className="p-6 glassmorphism hover:scale-105 transition-transform duration-300">
+            <div className="flex justify-center mb-4">
+              <Mountain className="w-12 h-12 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-center">Geography</h3>
+            <p className="text-sm text-center text-muted-foreground">
+              Regional climate patterns
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex justify-center mt-12 fade-element">
+          <a 
+            href="#visualizations" 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg transition-colors"
+          >
+            Explore Data
+          </a>
         </div>
       </div>
     </section>
