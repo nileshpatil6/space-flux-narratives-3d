@@ -1,8 +1,9 @@
+
 // Array of textures that need to be preloaded
 const EARTH_TEXTURES = {
   dayMap: "/textures/earth_daymap.jpg",
-  normalMap: "/textures/earth_normal_map.jpg",
-  specularMap: "/textures/earth_specular_map.jpg",
+  normalMap: "/textures/earth_normal.jpg",
+  specularMap: "/textures/earth_specular.jpg",
   clouds: "/textures/earth_clouds.jpg"
 };
 

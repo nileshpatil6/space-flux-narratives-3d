@@ -1,8 +1,7 @@
-
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars as DreiStars, useTexture } from '@react-three/drei';
+import { OrbitControls, Stars as DreiStars } from '@react-three/drei';
 import gsap from 'gsap';
 import { getTexturePaths } from '../../utils/texturePreloader';
 
@@ -27,7 +26,6 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
   });
   const [texturesLoaded, setTexturesLoaded] = useState(false);
   
-  // Load textures with error handling
   useEffect(() => {
     const textureLoader = new THREE.TextureLoader();
     const paths = getTexturePaths();
@@ -41,7 +39,6 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
     };
     let loadCount = 0;
 
-    // Helper function to create a solid color texture as fallback
     const createColorTexture = (color: string) => {
       const canvas = document.createElement('canvas');
       canvas.width = 1;
@@ -54,82 +51,36 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
       return new THREE.CanvasTexture(canvas);
     };
 
-    // Load earth day map
-    textureLoader.load(
-      paths.dayMap, 
-      (texture) => {
-        loadedTextures.earthMap = texture;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      },
-      undefined, 
-      () => {
-        console.warn(`Error loading ${paths.dayMap}, using fallback`);
-        loadedTextures.earthMap = null;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      }
-    );
-
-    // Load normal map
-    textureLoader.load(
-      paths.normalMap, 
-      (texture) => {
-        loadedTextures.normalMap = texture;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      },
-      undefined, 
-      () => {
-        console.warn(`Error loading ${paths.normalMap}, using fallback`);
-        loadedTextures.normalMap = null;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      }
-    );
-
-    // Load specular map
-    textureLoader.load(
-      paths.specularMap, 
-      (texture) => {
-        loadedTextures.specularMap = texture;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      },
-      undefined, 
-      () => {
-        console.warn(`Error loading ${paths.specularMap}, using fallback`);
-        loadedTextures.specularMap = null;
-        loadCount++;
-        if (loadCount === 4) setTextures(loadedTextures);
-      }
-    );
-
-    // Load clouds
-    textureLoader.load(
-      paths.clouds, 
-      (texture) => {
-        loadedTextures.cloudsMap = texture;
-        loadCount++;
-        if (loadCount === 4) {
-          setTextures(loadedTextures);
-          setTexturesLoaded(true);
+    const loadTexture = (url: string, key: string, fallbackColor: string) => {
+      textureLoader.load(
+        url, 
+        (texture) => {
+          loadedTextures[key] = texture;
+          loadCount++;
+          if (loadCount === 4) {
+            setTextures(loadedTextures);
+            setTexturesLoaded(true);
+          }
+        },
+        undefined, 
+        () => {
+          console.warn(`Error loading ${url}, using fallback`);
+          loadedTextures[key] = createColorTexture(fallbackColor);
+          loadCount++;
+          if (loadCount === 4) {
+            setTextures(loadedTextures);
+            setTexturesLoaded(true);
+          }
         }
-      },
-      undefined, 
-      () => {
-        console.warn(`Error loading ${paths.clouds}, using fallback`);
-        loadedTextures.cloudsMap = null;
-        loadCount++;
-        if (loadCount === 4) {
-          setTextures(loadedTextures);
-          setTexturesLoaded(true);
-        }
-      }
-    );
+      );
+    };
+
+    loadTexture(paths.dayMap, 'earthMap', paths.fallbacks.dayMap);
+    loadTexture(paths.normalMap, 'normalMap', paths.fallbacks.normalMap);
+    loadTexture(paths.specularMap, 'specularMap', paths.fallbacks.specularMap);
+    loadTexture(paths.clouds, 'cloudsMap', paths.fallbacks.clouds);
   }, []);
 
-  // Pulse animation for the earth
   useEffect(() => {
     if (pulse && earthRef.current && glowRef.current) {
       const timeline = gsap.timeline({
@@ -147,7 +98,6 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
     }
   }, [pulse]);
 
-  // Animation hook
   useFrame(({ clock }) => {
     if (isAnimating && earthRef.current && cloudsRef.current) {
       earthRef.current.rotation.y = clock.getElapsedTime() * 0.05;
@@ -156,12 +106,11 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
   });
 
   if (!texturesLoaded) {
-    return null; // Don't render until textures are resolved (either loaded or fallbacks created)
+    return null;
   }
 
   return (
     <group>
-      {/* Glow effect */}
       <mesh ref={glowRef}>
         <sphereGeometry args={[2.1, 32, 32]} />
         <meshBasicMaterial
@@ -172,7 +121,6 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
         />
       </mesh>
       
-      {/* Main Earth sphere */}
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
         <meshPhongMaterial 
@@ -184,7 +132,6 @@ const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; p
         />
       </mesh>
       
-      {/* Clouds layer */}
       <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
         <sphereGeometry args={[2, 64, 64]} />
         <meshPhongMaterial 
@@ -213,12 +160,10 @@ const Atmosphere = () => {
   );
 };
 
-// Enhanced stars with more parameters for a better look
 const EnhancedStars = () => {
   const { scene } = useThree();
   
   useEffect(() => {
-    // Create multiple star layers for depth
     const createStarLayer = (count: number, size: number, distance: number) => {
       const starGeometry = new THREE.BufferGeometry();
       const starMaterial = new THREE.PointsMaterial({
@@ -244,13 +189,11 @@ const EnhancedStars = () => {
       return { geometry: starGeometry, material: starMaterial, mesh: stars };
     };
     
-    // Create layers of stars with different properties
     const nearStars = createStarLayer(1000, 0.1, 500);
     const midStars = createStarLayer(3000, 0.05, 1000);
     const farStars = createStarLayer(6000, 0.02, 1500);
     
     return () => {
-      // Cleanup
       [nearStars, midStars, farStars].forEach(layer => {
         scene.remove(layer.mesh);
         layer.geometry.dispose();
@@ -262,7 +205,6 @@ const EnhancedStars = () => {
   return null;
 };
 
-// Space dust particles
 const SpaceDust = () => {
   const particles = useRef<THREE.Points>(null);
   
@@ -297,7 +239,6 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
   
-  // Setup GSAP animations for the container
   useEffect(() => {
     setIsClient(true);
     
@@ -325,7 +266,6 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
         camera={{ position: [0, 0, 6], fov: 45 }}
         style={{ background: 'transparent' }}
       >
-        {/* Lighting */}
         <ambientLight intensity={0.3} />
         <directionalLight 
           position={[5, 3, 5]} 
@@ -336,16 +276,13 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
         
         {isClient && (
           <>
-            {/* Earth with atmosphere */}
             <Earth pulse={true} />
             <Atmosphere />
             
-            {/* Background stars */}
             <EnhancedStars />
             <SpaceDust />
             <DreiStars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
             
-            {/* Controls */}
             {showControls && (
               <OrbitControls 
                 enableZoom={false}

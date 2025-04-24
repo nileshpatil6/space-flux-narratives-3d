@@ -1,7 +1,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, useTexture } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -12,21 +12,59 @@ const EARTH_SEGMENTS = 64;
 const Earth = () => {
   const earthRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
-  
-  // Load all textures
-  const [
-    earthMap,
-    normalMap,
-    specularMap,
-    cloudsMap,
-    bumpMap,
-  ] = useTexture([
-    '/textures/earth_daymap.jpg',
-    '/textures/earth_normal.jpg',
-    '/textures/earth_specular.jpg',
-    '/textures/earth_clouds.jpg',
-    '/textures/earth_bump.jpg'
-  ]);
+  const [textures, setTextures] = useState({
+    earthMap: null as THREE.Texture | null,
+    normalMap: null as THREE.Texture | null,
+    specularMap: null as THREE.Texture | null,
+    cloudsMap: null as THREE.Texture | null,
+    bumpMap: null as THREE.Texture | null
+  });
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    // Use TextureLoader for better error handling
+    const textureLoader = new THREE.TextureLoader();
+    const loadTexture = (url: string) => {
+      return new Promise<THREE.Texture>((resolve, reject) => {
+        textureLoader.load(
+          url,
+          (texture) => resolve(texture),
+          undefined,
+          (error) => {
+            console.warn(`Failed to load texture: ${url}`, error);
+            reject(error);
+          }
+        );
+      });
+    };
+
+    const loadAllTextures = async () => {
+      try {
+        const [earthMap, normalMap, specularMap, cloudsMap, bumpMap] = await Promise.all([
+          loadTexture('/textures/earth_daymap.jpg').catch(() => null),
+          loadTexture('/textures/earth_normal.jpg').catch(() => null),
+          loadTexture('/textures/earth_specular.jpg').catch(() => null),
+          loadTexture('/textures/earth_clouds.jpg').catch(() => null),
+          loadTexture('/textures/earth_bump.jpg').catch(() => null)
+        ]);
+
+        setTextures({
+          earthMap,
+          normalMap,
+          specularMap,
+          cloudsMap,
+          bumpMap
+        });
+        setLoaded(true);
+      } catch (error) {
+        console.error("Error loading textures:", error);
+        // We'll still set loaded to true so we can display fallback materials
+        setLoaded(true);
+      }
+    };
+
+    loadAllTextures();
+  }, []);
 
   useFrame(({ clock }) => {
     if (earthRef.current) {
@@ -40,18 +78,23 @@ const Earth = () => {
     }
   });
 
+  if (!loaded) {
+    return null;
+  }
+
   return (
     <group ref={earthRef}>
       {/* Earth sphere */}
       <mesh castShadow receiveShadow>
         <sphereGeometry args={[EARTH_RADIUS, EARTH_SEGMENTS, EARTH_SEGMENTS]} />
         <meshPhongMaterial
-          map={earthMap}
-          normalMap={normalMap}
-          specularMap={specularMap}
-          bumpMap={bumpMap}
+          map={textures.earthMap}
+          normalMap={textures.normalMap}
+          specularMap={textures.specularMap}
+          bumpMap={textures.bumpMap}
           bumpScale={0.05}
           shininess={10}
+          color={textures.earthMap ? undefined : new THREE.Color(0x0077be)}
         />
       </mesh>
       
@@ -59,10 +102,11 @@ const Earth = () => {
       <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
         <sphereGeometry args={[EARTH_RADIUS, EARTH_SEGMENTS, EARTH_SEGMENTS]} />
         <meshPhongMaterial 
-          map={cloudsMap}
+          map={textures.cloudsMap}
           transparent
           opacity={0.4}
           depthWrite={false}
+          color={textures.cloudsMap ? undefined : new THREE.Color(0xffffff)}
         />
       </mesh>
       
@@ -112,7 +156,7 @@ const Hotspots = () => {
         
         return (
           <group key={i} position={position} scale={[spot.scale, spot.scale, spot.scale]}>
-            <mesh lookAt={[0, 0, 0]}>
+            <mesh>
               <circleGeometry args={[0.1, 32]} />
               <meshBasicMaterial 
                 color={spot.color} 
@@ -148,66 +192,31 @@ const Stars = () => {
     });
   }, []);
   
-  const renderStars = () => {
-    const starCount = 3000;
-    const starsGeometry = new THREE.BufferGeometry();
-    const starPositions = new Float32Array(starCount * 3);
-    const starSizes = new Float32Array(starCount);
-    
-    for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-      // Create a sphere of stars
-      const radius = 50 + Math.random() * 100;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.random() * Math.PI * 2;
-      
-      starPositions[i3] = radius * Math.sin(theta) * Math.cos(phi);
-      starPositions[i3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
-      starPositions[i3 + 2] = radius * Math.cos(theta);
-      
-      starSizes[i] = Math.random() * 2 + 0.5;
-    }
-    
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    starsGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
-    
-    return (
-      <points ref={starsRef}>
-        <bufferGeometry {...starsGeometry} />
-        <pointsMaterial
-          size={0.7}
-          color="#ffffff"
-          transparent
-          opacity={0.8}
-          sizeAttenuation
-          vertexShader={`
-            attribute float size;
-            varying float vSize;
-            
-            void main() {
-              vSize = size;
-              vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-              gl_PointSize = size * (300.0 / -mvPosition.z);
-              gl_Position = projectionMatrix * mvPosition;
-            }
-          `}
-          fragmentShader={`
-            varying float vSize;
-            
-            void main() {
-              float distance = length(gl_PointCoord - vec2(0.5, 0.5));
-              if (distance > 0.5) {
-                discard;
-              }
-              gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0 - (distance * 2.0));
-            }
-          `}
+  return (
+    <points ref={starsRef}>
+      <bufferGeometry>
+        <float32BufferAttribute
+          attach="attributes-position"
+          array={new Float32Array([...Array(9000)].map(() => (Math.random() - 0.5) * 300))}
+          count={3000}
+          itemSize={3}
         />
-      </points>
-    );
-  };
-  
-  return renderStars();
+        <float32BufferAttribute
+          attach="attributes-size"
+          array={new Float32Array([...Array(3000)].map(() => Math.random() * 2 + 0.5))}
+          count={3000}
+          itemSize={1}
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.7} 
+        color="#ffffff" 
+        transparent 
+        opacity={0.8}
+        sizeAttenuation={true}
+      />
+    </points>
+  );
 };
 
 // Main globe component
