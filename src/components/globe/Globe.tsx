@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
@@ -10,15 +9,19 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const [textures, setTextures] = useState<{
-    earthMap: THREE.Texture | THREE.Color;
+    earthMap: THREE.Texture | null;
     normalMap: THREE.Texture | null;
     specularMap: THREE.Texture | null;
-    cloudsMap: THREE.Texture | THREE.Color;
+    cloudsMap: THREE.Texture | null;
+    earthColor: THREE.Color;
+    cloudsColor: THREE.Color;
   }>({
-    earthMap: new THREE.Color('blue'),
+    earthMap: null,
     normalMap: null,
     specularMap: null,
-    cloudsMap: new THREE.Color('white')
+    cloudsMap: null,
+    earthColor: new THREE.Color('blue'),
+    cloudsColor: new THREE.Color('white')
   });
   const [texturesLoaded, setTexturesLoaded] = useState(false);
   
@@ -27,10 +30,12 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
     const textureLoader = new THREE.TextureLoader();
     const paths = getTexturePaths();
     const loadedTextures = { 
-      earthMap: new THREE.Color('blue'), 
+      earthMap: null, 
       normalMap: null, 
       specularMap: null, 
-      cloudsMap: new THREE.Color('white')
+      cloudsMap: null,
+      earthColor: new THREE.Color(paths.fallbacks.dayMap),
+      cloudsColor: new THREE.Color(paths.fallbacks.clouds)
     };
     let loadCount = 0;
 
@@ -44,8 +49,7 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, 1, 1);
       }
-      const texture = new THREE.CanvasTexture(canvas);
-      return texture;
+      return new THREE.CanvasTexture(canvas);
     };
 
     // Load earth day map
@@ -59,7 +63,7 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       undefined, 
       () => {
         console.warn(`Error loading ${paths.dayMap}, using fallback`);
-        loadedTextures.earthMap = createColorTexture(paths.fallbacks.dayMap);
+        loadedTextures.earthMap = null;
         loadCount++;
         if (loadCount === 4) setTextures(loadedTextures);
       }
@@ -113,7 +117,7 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       undefined, 
       () => {
         console.warn(`Error loading ${paths.clouds}, using fallback`);
-        loadedTextures.cloudsMap = createColorTexture(paths.fallbacks.clouds);
+        loadedTextures.cloudsMap = null;
         loadCount++;
         if (loadCount === 4) {
           setTextures(loadedTextures);
@@ -141,11 +145,11 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
         <meshPhongMaterial 
-          map={textures.earthMap instanceof THREE.Texture ? textures.earthMap : undefined}
+          map={textures.earthMap}
           normalMap={textures.normalMap}
           specularMap={textures.specularMap}
           shininess={5}
-          color={textures.earthMap instanceof THREE.Color ? textures.earthMap : undefined}
+          color={textures.earthMap ? undefined : textures.earthColor}
         />
       </mesh>
       
@@ -153,17 +157,16 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
         <sphereGeometry args={[2, 64, 64]} />
         <meshPhongMaterial 
-          map={textures.cloudsMap instanceof THREE.Texture ? textures.cloudsMap : undefined}
+          map={textures.cloudsMap}
           transparent 
           opacity={0.4}
-          color={textures.cloudsMap instanceof THREE.Color ? textures.cloudsMap : undefined}
+          color={textures.cloudsMap ? undefined : textures.cloudsColor}
         />
       </mesh>
     </group>
   );
 };
 
-// Atmosphere glow effect
 const Atmosphere = () => {
   return (
     <mesh>
@@ -179,7 +182,6 @@ const Atmosphere = () => {
   );
 };
 
-// Stars background
 const Stars = () => {
   const { scene } = useThree();
   
@@ -212,7 +214,6 @@ const Stars = () => {
   return null;
 };
 
-// Main Globe component
 const Globe = ({ showControls = true }: { showControls?: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
@@ -278,7 +279,6 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
   );
 };
 
-// Fallback placeholder component for when assets aren't loaded yet
 export const GlobePlaceholder = () => {
   return (
     <div className="w-full h-full flex items-center justify-center rounded-full bg-gradient-to-br from-blue-900 to-blue-600 animate-pulse">
