@@ -82,7 +82,7 @@ export const setupPinnedSections = (pinSelector: string, panelsSelector: string)
     const direction = i % 2 === 0 ? -1 : 1;
     
     gsap.fromTo(
-      panel,
+      panel as Element,
       { 
         x: `${direction * 100}%`,
         opacity: 0
@@ -92,7 +92,7 @@ export const setupPinnedSections = (pinSelector: string, panelsSelector: string)
         opacity: 1,
         ease: 'power2.out',
         scrollTrigger: {
-          trigger: panel,
+          trigger: panel as Element,
           start: 'top bottom',
           end: 'top center',
           scrub: true
@@ -121,7 +121,9 @@ export const animateCounter = (selector: string, endValue: number, duration: num
     duration: duration,
     onUpdate: function() {
       startValue += increment;
-      element.textContent = Math.floor(startValue).toString();
+      if (element && element.textContent !== null) {
+        element.textContent = Math.floor(startValue).toString();
+      }
     },
     scrollTrigger: {
       trigger: element,

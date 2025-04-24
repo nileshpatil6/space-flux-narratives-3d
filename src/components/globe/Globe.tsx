@@ -31,22 +31,20 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       {/* Main Earth sphere */}
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshPhongMaterial 
-          map={earthMap}
-          normalMap={earthNormalMap}
-          specularMap={earthSpecularMap}
-          shininess={5}
-        />
+        <meshPhongMaterial>
+          <primitive attach="map" object={earthMap} />
+          <primitive attach="normalMap" object={earthNormalMap} />
+          <primitive attach="specularMap" object={earthSpecularMap} />
+          <primitive attach="shininess" object={5} />
+        </meshPhongMaterial>
       </mesh>
       
       {/* Clouds layer */}
       <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshPhongMaterial
-          map={cloudsMap}
-          transparent={true}
-          opacity={0.4}
-        />
+        <meshPhongMaterial transparent opacity={0.4}>
+          <primitive attach="map" object={cloudsMap} />
+        </meshPhongMaterial>
       </mesh>
     </group>
   );
@@ -58,11 +56,12 @@ const Atmosphere = () => {
     <mesh>
       <sphereGeometry args={[2.1, 64, 64]} />
       <meshBasicMaterial
-        color={new THREE.Color(0x3388ff)}
-        transparent={true}
+        transparent
         opacity={0.1}
         side={THREE.BackSide}
-      />
+      >
+        <primitive attach="color" object={new THREE.Color(0x3388ff)} />
+      </meshBasicMaterial>
     </mesh>
   );
 };
