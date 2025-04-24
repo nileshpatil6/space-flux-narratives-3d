@@ -1,0 +1,7 @@
+
+This folder contains Earth texture maps:
+- earth_daymap.jpg: Day side Earth texture
+- earth_normal.jpg: Normal map for terrain height
+- earth_specular.jpg: Specular map for shininess
+- earth_clouds.jpg: Cloud layer
+- earth_bump.jpg: Bump map for terrain height

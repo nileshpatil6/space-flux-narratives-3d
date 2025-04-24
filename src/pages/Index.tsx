@@ -1,5 +1,6 @@
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "@/hooks/useTheme";
 import { preloadTextures } from "../utils/texturePreloader";
 import Navbar from "../components/layout/Navbar";
 import ScrollProgress from "../components/ui/ScrollProgress";
@@ -10,67 +11,102 @@ import VisualizationSection from "../components/sections/VisualizationSection";
 import CallToAction from "../components/sections/CallToAction";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import { setupAnimations } from "../lib/animationUtils";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
 
 const Index = () => {
+  const { theme } = useTheme();
   const mainRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     // Preload Earth textures with error handling
     preloadTextures();
     
-    // Initialize all animations
+    // Setup page animations
     setupAnimations();
     
-    // Create a space-themed cursor effect
-    const createSpaceDust = () => {
-      const cursor = document.createElement('div');
-      cursor.className = 'space-dust';
-      document.body.appendChild(cursor);
-      
-      window.addEventListener('mousemove', (e) => {
-        // Create particle on mouse move
-        const particle = document.createElement('div');
-        particle.className = 'space-particle';
-        
-        // Set positions
-        const xPos = `${e.clientX}px`;
-        const yPos = `${e.clientY}px`;
-        
-        particle.style.setProperty('left', xPos);
-        particle.style.setProperty('top', yPos);
-        cursor.style.setProperty('left', xPos);
-        cursor.style.setProperty('top', yPos);
-        
-        // Random size and color for particles
-        const size = Math.random() * 5;
-        const hue = 180 + Math.random() * 60; // Blue to cyan
-        particle.style.setProperty('width', `${size}px`);
-        particle.style.setProperty('height', `${size}px`);
-        particle.style.setProperty('background', `hsla(${hue}, 100%, 70%, ${0.5 + Math.random() * 0.5})`);
-        
-        document.body.appendChild(particle);
-        
-        // Animate and remove particles
-        gsap.to(particle, {
-          duration: 1 + Math.random() * 2,
-          opacity: 0,
-          x: (Math.random() - 0.5) * 100,
-          y: (Math.random() - 0.5) * 100,
-          onComplete: () => {
-            particle.remove();
-          }
-        });
-      });
+    // Setup stellar background
+    setupBackground();
+    
+    return () => {
+      // Cleanup any animation listeners
+      ScrollTrigger.getAll().forEach(t => t.kill());
     };
+  }, []);
+  
+  // Setup GSAP animations
+  const setupAnimations = () => {
+    // Add scroll animations
+    const sections = document.querySelectorAll('.fade-in-section');
     
-    createSpaceDust();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          
+          // Animate children with stagger
+          const elements = entry.target.querySelectorAll('.animate-on-visible');
+          gsap.to(elements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "power2.out"
+          });
+        }
+      });
+    }, { threshold: 0.15 });
     
-    // Setup a parallax star background
-    const setupParallaxStars = () => {
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+    
+    // Create scroll-triggered animations
+    gsap.utils.toArray('.scroll-section').forEach((section: any, i) => {
+      // Section entry animation
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top 80%",
+        onEnter: () => {
+          gsap.to(section, {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power2.out"
+          });
+        }
+      });
+      
+      // Parallax background effect
+      gsap.to(section.querySelector('.section-bg'), {
+        y: "30%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+    });
+    
+    // Setup some floating elements
+    gsap.utils.toArray('.float-element').forEach((element: any) => {
+      gsap.to(element, {
+        y: "-=20",
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+      });
+    });
+  };
+  
+  // Setup space background with stars
+  const setupBackground = () => {
+    // Create star field
+    const createStarLayers = () => {
       const starsContainer = document.createElement('div');
       starsContainer.className = 'stars-container';
       document.body.insertBefore(starsContainer, document.body.firstChild);
@@ -82,14 +118,14 @@ const Index = () => {
         starsContainer.appendChild(starsLayer);
         
         // Add random stars to each layer
-        const count = i === 1 ? 50 : i === 2 ? 100 : 200;
+        const count = i === 1 ? 50 : i === 2 ? 100 : 150;
         for (let j = 0; j < count; j++) {
           const star = document.createElement('div');
           star.className = 'star';
-          star.style.setProperty('left', `${Math.random() * 100}%`);
-          star.style.setProperty('top', `${Math.random() * 100}%`);
-          star.style.setProperty('width', `${4 - i}px`);
-          star.style.setProperty('height', `${4 - i}px`);
+          star.style.left = `${Math.random() * 100}%`;
+          star.style.top = `${Math.random() * 100}%`;
+          star.style.width = `${4 - i}px`;
+          star.style.height = `${4 - i}px`;
           starsLayer.appendChild(star);
         }
       }
@@ -107,36 +143,14 @@ const Index = () => {
       });
     };
     
-    setupParallaxStars();
-    
-    // Add scroll animations
-    const sections = document.querySelectorAll('.fade-in-section');
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        } else {
-          // Optional: if you want elements to fade out when scrolled past
-          // entry.target.classList.remove('is-visible');
-        }
-      });
-    }, { threshold: 0.15 });
-    
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-    
-    return () => {
-      // Cleanup
-      sections.forEach(section => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+    createStarLayers();
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground cosmic-background" ref={mainRef}>
+    <div 
+      className={`min-h-screen transition-colors ${theme}`} 
+      ref={mainRef}
+    >
       <ScrollProgress />
       <Navbar />
       
