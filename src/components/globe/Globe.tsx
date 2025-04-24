@@ -2,21 +2,25 @@
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { OrbitControls, useTexture } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import gsap from 'gsap';
 
-// Earth component that will be rendered inside the Canvas
 const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   
-  // Load textures
-  const [earthMap, earthNormalMap, earthSpecularMap, cloudsMap] = useTexture([
-    "/earth_daymap.jpg",      // Replace with actual texture paths
-    "/earth_normal_map.jpg",  // when assets are available
-    "/earth_specular_map.jpg",
-    "/earth_clouds.jpg"
-  ]);
+  // Use useLoader to handle texture loading with error handling
+  const [earthMap, earthNormalMap, earthSpecularMap, cloudsMap] = useLoader(THREE.TextureLoader, [
+    "/textures/earth_daymap.jpg",      
+    "/textures/earth_normal_map.jpg",  
+    "/textures/earth_specular_map.jpg",
+    "/textures/earth_clouds.jpg"
+  ], (loader) => {
+    loader.setRequestHeader({
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    });
+  });
 
   // Animation hook
   useFrame(({ clock }) => {
@@ -31,20 +35,22 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       {/* Main Earth sphere */}
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshPhongMaterial>
-          <primitive attach="map" object={earthMap} />
-          <primitive attach="normalMap" object={earthNormalMap} />
-          <primitive attach="specularMap" object={earthSpecularMap} />
-          <primitive attach="shininess" object={new Number(5)} />
-        </meshPhongMaterial>
+        <meshPhongMaterial 
+          map={earthMap} 
+          normalMap={earthNormalMap} 
+          specularMap={earthSpecularMap} 
+          shininess={5} 
+        />
       </mesh>
       
       {/* Clouds layer */}
       <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshPhongMaterial transparent opacity={0.4}>
-          <primitive attach="map" object={cloudsMap} />
-        </meshPhongMaterial>
+        <meshPhongMaterial 
+          map={cloudsMap} 
+          transparent 
+          opacity={0.4} 
+        />
       </mesh>
     </group>
   );

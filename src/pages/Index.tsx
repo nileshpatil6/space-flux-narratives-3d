@@ -1,5 +1,5 @@
-
 import { useEffect } from "react";
+import { preloadTextures } from "../utils/texturePreloader";
 import Navbar from "../components/layout/Navbar";
 import ScrollProgress from "../components/ui/ScrollProgress";
 import Hero from "../components/sections/Hero";
@@ -10,28 +10,8 @@ import CallToAction from "../components/sections/CallToAction";
 
 const Index = () => {
   useEffect(() => {
-    // Preload assets
-    const preloadAssets = async () => {
-      try {
-        // In a production environment, you would preload your Earth textures here
-        const textureURLs = [
-          "/earth_daymap.jpg",
-          "/earth_normal_map.jpg",
-          "/earth_specular_map.jpg",
-          "/earth_clouds.jpg"
-        ];
-        
-        // Create dummy image elements to load the textures
-        textureURLs.forEach(url => {
-          const img = new Image();
-          img.src = url;
-        });
-      } catch (error) {
-        console.error("Error preloading assets:", error);
-      }
-    };
-
-    preloadAssets();
+    // Preload Earth textures
+    preloadTextures();
     
     // Add fade in animation to sections
     const handleScroll = () => {
