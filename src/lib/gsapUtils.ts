@@ -12,6 +12,8 @@ if (typeof window !== 'undefined') {
  * @param selector CSS selector for elements to animate
  */
 export const setupFadeInAnimations = (selector: string) => {
+  if (typeof window === 'undefined') return;
+  
   const elements = document.querySelectorAll(selector);
   
   elements.forEach((element) => {
@@ -40,7 +42,7 @@ export const setupFadeInAnimations = (selector: string) => {
  * @param globeRef Reference to the globe element
  */
 export const animateGlobeOnScroll = (globeRef: React.RefObject<HTMLDivElement>) => {
-  if (!globeRef.current) return;
+  if (typeof window === 'undefined' || !globeRef.current) return;
 
   gsap.timeline({
     scrollTrigger: {
@@ -61,6 +63,8 @@ export const animateGlobeOnScroll = (globeRef: React.RefObject<HTMLDivElement>) 
  * @param panelsSelector Panels that will slide in
  */
 export const setupPinnedSections = (pinSelector: string, panelsSelector: string) => {
+  if (typeof window === 'undefined') return;
+  
   const panels = gsap.utils.toArray(panelsSelector);
   
   gsap.timeline({
@@ -105,6 +109,8 @@ export const setupPinnedSections = (pinSelector: string, panelsSelector: string)
  * @param duration Animation duration in seconds
  */
 export const animateCounter = (selector: string, endValue: number, duration: number = 2) => {
+  if (typeof window === 'undefined') return;
+  
   const element = document.querySelector(selector);
   if (!element) return;
 

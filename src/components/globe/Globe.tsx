@@ -31,7 +31,7 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
       {/* Main Earth sphere */}
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
-        <meshPhongMaterial
+        <meshPhongMaterial 
           map={earthMap}
           normalMap={earthNormalMap}
           specularMap={earthSpecularMap}
