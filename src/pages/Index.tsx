@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { preloadTextures } from "../utils/texturePreloader";
 import Navbar from "../components/layout/Navbar";
@@ -10,7 +11,7 @@ import CallToAction from "../components/sections/CallToAction";
 
 const Index = () => {
   useEffect(() => {
-    // Preload Earth textures
+    // Preload Earth textures with error handling
     preloadTextures();
     
     // Add fade in animation to sections
