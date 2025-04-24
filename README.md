@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
 
-## Project info
+# Tell Us a Climate Story
 
-**URL**: https://lovable.dev/projects/f4e0524f-dc46-4097-9147-57399cf5caa7
+An interactive web application that visualizes climate data and greenhouse gas emissions using 3D graphics, animations, and data visualization.
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+This project creates an immersive storytelling experience about climate change through:
 
-**Use Lovable**
+- Interactive 3D globe visualization with Three.js
+- Data-driven charts and graphs
+- Scroll-triggered animations
+- Responsive design for all devices
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f4e0524f-dc46-4097-9147-57399cf5caa7) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **3D Earth Visualization**: Interactive globe with texture mapping
+- **Data Dashboard**: Charts for CO₂, methane, and temperature trends
+- **Scroll Animations**: Content that reveals as you scroll through the narrative
+- **Region Selection**: Compare climate data across different geographical areas
+- **Responsive Design**: Optimized for both desktop and mobile experiences
 
-**Use your preferred IDE**
+## Project Structure
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+├── public/
+│   ├── earth_daymap.jpg        # Earth texture (replace with actual texture)
+│   ├── earth_normal_map.jpg    # Normal map (replace with actual texture)
+│   ├── earth_specular_map.jpg  # Specular map (replace with actual texture)
+│   └── earth_clouds.jpg        # Clouds texture (replace with actual texture)
+├── src/
+│   ├── components/
+│   │   ├── data/               # Data visualization components
+│   │   ├── globe/              # 3D globe components
+│   │   ├── layout/             # Layout components
+│   │   ├── sections/           # Page sections
+│   │   └── ui/                 # UI components
+│   ├── hooks/                  # Custom React hooks
+│   ├── lib/                    # Utility functions
+│   └── pages/                  # Page components
 ```
 
-**Edit a file directly in GitHub**
+## Getting Started
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
 
-**Use GitHub Codespaces**
+- Node.js (v16 or higher)
+- npm or yarn
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
 
-## What technologies are used for this project?
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/climate-story.git
+   cd climate-story
+   ```
 
-This project is built with:
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## How can I deploy this project?
+4. Open your browser and navigate to `http://localhost:8080`
 
-Simply open [Lovable](https://lovable.dev/projects/f4e0524f-dc46-4097-9147-57399cf5caa7) and click on Share -> Publish.
+## Replacing Placeholder Assets
 
-## Can I connect a custom domain to my Lovable project?
+Replace the placeholder Earth textures in the `/public` directory with actual textures:
 
-Yes, you can!
+- `earth_daymap.jpg` - Earth's surface texture
+- `earth_normal_map.jpg` - Normal map for 3D lighting
+- `earth_specular_map.jpg` - Specular map for reflections
+- `earth_clouds.jpg` - Cloud layer texture
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+You can find free Earth textures at:
+- [NASA Visible Earth](https://visibleearth.nasa.gov/)
+- [Solar System Scope](https://www.solarsystemscope.com/textures/)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Connecting to Real Climate Data
+
+Currently, the application uses mock data. To connect to real climate data APIs:
+
+1. Replace the API endpoint in `src/hooks/useGlobeData.tsx`
+2. Update the data transformation logic as needed
+
+Recommended climate data APIs:
+- [NOAA Climate Data API](https://www.ncdc.noaa.gov/cdo-web/webservices/v2)
+- [NASA GISS Surface Temperature Analysis](https://data.giss.nasa.gov/gistemp/)
+
+## Deployment
+
+This project can be deployed to any static site hosting service:
+
+### Vercel
+```bash
+npm run build
+vercel deploy --prod
+```
+
+### Netlify
+```bash
+npm run build
+netlify deploy --prod
+```
+
+## Built With
+
+- [React](https://reactjs.org/) - UI framework
+- [Three.js](https://threejs.org/) - 3D graphics
+- [React Three Fiber](https://github.com/pmndrs/react-three-fiber) - React renderer for Three.js
+- [GSAP](https://greensock.com/gsap/) - Animation library
+- [Chart.js](https://www.chartjs.org/) - Data visualization
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Climate data sources: NOAA, NASA, US Greenhouse Gas Center
+- Earth textures: NASA Visible Earth
+- Three.js and React Three Fiber communities for documentation and examples
