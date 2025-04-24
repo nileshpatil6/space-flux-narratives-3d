@@ -1,13 +1,15 @@
+
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Stars as DreiStars, useTexture } from '@react-three/drei';
 import gsap from 'gsap';
 import { getTexturePaths } from '../../utils/texturePreloader';
 
-const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
+const Earth = ({ isAnimating = true, pulse = false }: { isAnimating?: boolean; pulse?: boolean }) => {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
   const [textures, setTextures] = useState<{
     earthMap: THREE.Texture | null;
     normalMap: THREE.Texture | null;
@@ -127,6 +129,24 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
     );
   }, []);
 
+  // Pulse animation for the earth
+  useEffect(() => {
+    if (pulse && earthRef.current && glowRef.current) {
+      const timeline = gsap.timeline({
+        repeat: -1,
+        yoyo: true
+      });
+      
+      timeline.to(glowRef.current.scale, {
+        x: 1.15,
+        y: 1.15,
+        z: 1.15,
+        duration: 1.5,
+        ease: "power2.inOut"
+      });
+    }
+  }, [pulse]);
+
   // Animation hook
   useFrame(({ clock }) => {
     if (isAnimating && earthRef.current && cloudsRef.current) {
@@ -141,6 +161,17 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
 
   return (
     <group>
+      {/* Glow effect */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[2.1, 32, 32]} />
+        <meshBasicMaterial
+          color={new THREE.Color(0x3388ff)}
+          transparent={true}
+          opacity={0.15}
+          side={THREE.BackSide}
+        />
+      </mesh>
+      
       {/* Main Earth sphere */}
       <mesh ref={earthRef}>
         <sphereGeometry args={[2, 64, 64]} />
@@ -182,36 +213,84 @@ const Atmosphere = () => {
   );
 };
 
-const Stars = () => {
+// Enhanced stars with more parameters for a better look
+const EnhancedStars = () => {
   const { scene } = useThree();
   
   useEffect(() => {
-    const starGeometry = new THREE.BufferGeometry();
-    const starMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.1
-    });
+    // Create multiple star layers for depth
+    const createStarLayer = (count: number, size: number, distance: number) => {
+      const starGeometry = new THREE.BufferGeometry();
+      const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: size,
+        transparent: true,
+        opacity: 0.8,
+        sizeAttenuation: true
+      });
+      
+      const starVertices = [];
+      for (let i = 0; i < count; i++) {
+        const x = (Math.random() - 0.5) * distance;
+        const y = (Math.random() - 0.5) * distance;
+        const z = (Math.random() - 0.5) * distance;
+        starVertices.push(x, y, z);
+      }
+      
+      starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
+      
+      return { geometry: starGeometry, material: starMaterial, mesh: stars };
+    };
     
-    const starVertices = [];
-    for (let i = 0; i < 10000; i++) {
-      const x = (Math.random() - 0.5) * 2000;
-      const y = (Math.random() - 0.5) * 2000;
-      const z = (Math.random() - 0.5) * 2000;
-      starVertices.push(x, y, z);
-    }
-    
-    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-    const stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
+    // Create layers of stars with different properties
+    const nearStars = createStarLayer(1000, 0.1, 500);
+    const midStars = createStarLayer(3000, 0.05, 1000);
+    const farStars = createStarLayer(6000, 0.02, 1500);
     
     return () => {
-      scene.remove(stars);
-      starGeometry.dispose();
-      starMaterial.dispose();
+      // Cleanup
+      [nearStars, midStars, farStars].forEach(layer => {
+        scene.remove(layer.mesh);
+        layer.geometry.dispose();
+        layer.material.dispose();
+      });
     };
   }, [scene]);
   
   return null;
+};
+
+// Space dust particles
+const SpaceDust = () => {
+  const particles = useRef<THREE.Points>(null);
+  
+  useFrame(({ clock }) => {
+    if (particles.current) {
+      particles.current.rotation.y = clock.getElapsedTime() * 0.02;
+    }
+  });
+  
+  return (
+    <points ref={particles}>
+      <bufferGeometry>
+        <float32BufferAttribute
+          attach="attributes-position"
+          array={new Float32Array([...Array(3000)].map(() => (Math.random() - 0.5) * 300))}
+          count={1000}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.7} 
+        color="#5555ff" 
+        transparent 
+        opacity={0.3}
+        sizeAttenuation={true}
+      />
+    </points>
+  );
 };
 
 const Globe = ({ showControls = true }: { showControls?: boolean }) => {
@@ -238,7 +317,8 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
       style={{ 
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: '50%'
+        borderRadius: '50%',
+        boxShadow: '0 0 30px rgba(0, 150, 255, 0.3)'
       }}
     >
       <Canvas
@@ -252,15 +332,18 @@ const Globe = ({ showControls = true }: { showControls?: boolean }) => {
           intensity={1} 
           castShadow 
         />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ff0000" />
         
         {isClient && (
           <>
             {/* Earth with atmosphere */}
-            <Earth />
+            <Earth pulse={true} />
             <Atmosphere />
             
             {/* Background stars */}
-            <Stars />
+            <EnhancedStars />
+            <SpaceDust />
+            <DreiStars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
             
             {/* Controls */}
             {showControls && (

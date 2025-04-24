@@ -73,11 +73,14 @@
   
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    background: linear-gradient(to bottom, #000810 0%, #001428 100%);
   }
 
   h1, h2, h3, h4 {
@@ -114,6 +117,7 @@
 
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400;
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
   }
 
   .section {
@@ -122,6 +126,14 @@
 
   .glassmorphism {
     @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl;
+    box-shadow: 0 4px 30px rgba(0, 150, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .glassmorphism:hover {
+    @apply bg-white/15;
+    box-shadow: 0 4px 30px rgba(0, 150, 255, 0.3);
+    transform: translateY(-5px);
   }
 
   .data-point {
@@ -132,6 +144,7 @@
   .progress-bar {
     @apply fixed top-0 left-0 right-0 h-1 bg-accent z-50;
     transform-origin: 0%;
+    box-shadow: 0 0 10px rgba(0, 150, 255, 0.7);
   }
 }
 
@@ -162,4 +175,155 @@
   opacity: 1;
   transform: none;
   visibility: visible;
+}
+
+/* Space-themed background elements */
+.cosmic-background {
+  position: relative;
+  overflow: hidden;
+}
+
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stars-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease-out;
+}
+
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: twinkle 4s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.nebula {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(60px);
+  z-index: -1;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: nebula-float 60s infinite alternate ease-in-out;
+}
+
+@keyframes nebula-float {
+  0% {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  100% {
+    transform: translateX(50px) translateY(30px) scale(1.2);
+  }
+}
+
+.space-dust {
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.5) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(5px);
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: screen;
+  transition: transform 0.1s linear;
+}
+
+.space-particle {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  mix-blend-mode: screen;
+}
+
+/* Enhanced UI elements */
+button, a.bg-primary, a.bg-secondary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+button:before, a.bg-primary:before, a.bg-secondary:before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+button:hover:before, a.bg-primary:hover:before, a.bg-secondary:hover:before {
+  transform: translateX(100%);
+}
+
+/* Floating animations for elements */
+.float-element {
+  animation: float-animation 6s ease-in-out infinite;
+}
+
+@keyframes float-animation {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Text glow effects */
+.text-glow {
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+}
+
+.text-glow-subtle {
+  text-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+}
+
+/* Scroll-triggered animations */
+.slide-in-left {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: all 1s ease-out;
+}
+
+.slide-in-right {
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 1s ease-out;
+}
+
+.slide-in-left.is-visible,
+.slide-in-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
 }
