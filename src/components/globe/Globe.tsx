@@ -35,7 +35,7 @@ const Earth = ({ isAnimating = true }: { isAnimating?: boolean }) => {
           <primitive attach="map" object={earthMap} />
           <primitive attach="normalMap" object={earthNormalMap} />
           <primitive attach="specularMap" object={earthSpecularMap} />
-          <primitive attach="shininess" object={5} />
+          <primitive attach="shininess" object={new Number(5)} />
         </meshPhongMaterial>
       </mesh>
       
