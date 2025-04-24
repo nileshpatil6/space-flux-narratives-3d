@@ -279,3 +279,140 @@ export const create3DRotationEffect = (selector: string, intensity: number = 15)
     });
   });
 };
+
+/**
+ * Create floating 3D objects that move as the user scrolls
+ * @param containerSelector The container where objects will be created
+ * @param count Number of objects to create
+ */
+export const createFloating3DObjects = (containerSelector: string, count: number = 10) => {
+  if (typeof window === 'undefined') return;
+  
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+  
+  // Object types (simple shapes that represent climate elements)
+  const objectTypes = [
+    { class: 'floating-leaf', rotation: 30 },
+    { class: 'floating-cloud', rotation: 0 },
+    { class: 'floating-drop', rotation: 15 },
+    { class: 'floating-sun', rotation: 0 }
+  ];
+  
+  // Create objects
+  for (let i = 0; i < count; i++) {
+    const objectType = objectTypes[i % objectTypes.length];
+    const object = document.createElement('div');
+    object.className = `absolute pointer-events-none ${objectType.class}`;
+    
+    // Random positioning
+    object.style.left = `${Math.random() * 90 + 5}%`;
+    object.style.top = `${Math.random() * 80 + 10}%`;
+    object.style.zIndex = '1';
+    
+    // Random sizing
+    const size = 20 + Math.random() * 30;
+    object.style.width = `${size}px`;
+    object.style.height = `${size}px`;
+    
+    // Add to container
+    container.appendChild(object);
+    
+    // Animate based on scroll
+    gsap.to(object, {
+      y: `${Math.random() > 0.5 ? '+=' : '-='}${100 + Math.random() * 200}`,
+      x: `${Math.random() > 0.5 ? '+=' : '-='}${50 + Math.random() * 100}`,
+      rotation: `${objectType.rotation + (Math.random() > 0.5 ? '+=' : '-=')}${Math.random() * 180}`,
+      scrollTrigger: {
+        trigger: container,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1
+      }
+    });
+    
+    // Additional floating animation
+    gsap.to(object, {
+      y: '+=15',
+      duration: 2 + Math.random() * 3,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+  }
+};
+
+/**
+ * Create a parallax depth effect with multiple layers
+ * @param selector Container selector
+ * @param layerSelectors Array of layer selectors (from back to front)
+ * @param depthFactor How strong the parallax effect should be
+ */
+export const createParallaxDepth = (selector: string, layerSelectors: string[], depthFactor: number = 0.1) => {
+  if (typeof window === 'undefined') return;
+  
+  const container = document.querySelector(selector);
+  if (!container) return;
+  
+  layerSelectors.forEach((layerSelector, index) => {
+    const layer = document.querySelector(layerSelector);
+    if (!layer) return;
+    
+    // Different depths based on layer index (deeper for background layers)
+    const depth = (layerSelectors.length - index) * depthFactor;
+    
+    gsap.to(layer, {
+      y: `${depth * 100}%`,
+      ease: "none",
+      scrollTrigger: {
+        trigger: container,
+        start: "top top",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+  });
+};
+
+/**
+ * Creates an orbit effect around a central element
+ * @param centerSelector Central element selector
+ * @param orbitElementsSelector Selector for orbiting elements
+ * @param radius Orbit radius in pixels
+ */
+export const createOrbitEffect = (centerSelector: string, orbitElementsSelector: string, radius: number) => {
+  if (typeof window === 'undefined') return;
+  
+  const center = document.querySelector(centerSelector);
+  const orbitElements = document.querySelectorAll(orbitElementsSelector);
+  
+  if (!center || orbitElements.length === 0) return;
+  
+  orbitElements.forEach((element, i) => {
+    // Create orbit path
+    const angle = (i / orbitElements.length) * Math.PI * 2;
+    const duration = 20 + i * 5; // Different durations for each element
+    
+    gsap.set(element, {
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius
+    });
+    
+    // Orbit animation
+    gsap.to(element, {
+      duration: duration,
+      repeat: -1,
+      ease: "none",
+      onUpdate: function() {
+        const progress = this.progress();
+        const currentAngle = angle + progress * Math.PI * 2;
+        
+        gsap.set(element, {
+          x: Math.cos(currentAngle) * radius,
+          y: Math.sin(currentAngle) * radius,
+          rotation: currentAngle * (180 / Math.PI)
+        });
+      }
+    });
+  });
+};
