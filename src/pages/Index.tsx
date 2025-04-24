@@ -35,17 +35,22 @@ const Index = () => {
         // Create particle on mouse move
         const particle = document.createElement('div');
         particle.className = 'space-particle';
-        particle.style.left = `${e.clientX}px`;
-        particle.style.top = `${e.clientY}px`;
-        cursor.style.left = `${e.clientX}px`;
-        cursor.style.top = `${e.clientY}px`;
+        
+        // Set positions
+        const xPos = `${e.clientX}px`;
+        const yPos = `${e.clientY}px`;
+        
+        particle.style.setProperty('left', xPos);
+        particle.style.setProperty('top', yPos);
+        cursor.style.setProperty('left', xPos);
+        cursor.style.setProperty('top', yPos);
         
         // Random size and color for particles
         const size = Math.random() * 5;
         const hue = 180 + Math.random() * 60; // Blue to cyan
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.background = `hsla(${hue}, 100%, 70%, ${0.5 + Math.random() * 0.5})`;
+        particle.style.setProperty('width', `${size}px`);
+        particle.style.setProperty('height', `${size}px`);
+        particle.style.setProperty('background', `hsla(${hue}, 100%, 70%, ${0.5 + Math.random() * 0.5})`);
         
         document.body.appendChild(particle);
         
@@ -81,10 +86,10 @@ const Index = () => {
         for (let j = 0; j < count; j++) {
           const star = document.createElement('div');
           star.className = 'star';
-          star.style.left = `${Math.random() * 100}%`;
-          star.style.top = `${Math.random() * 100}%`;
-          star.style.width = `${4 - i}px`;
-          star.style.height = `${4 - i}px`;
+          star.style.setProperty('left', `${Math.random() * 100}%`);
+          star.style.setProperty('top', `${Math.random() * 100}%`);
+          star.style.setProperty('width', `${4 - i}px`);
+          star.style.setProperty('height', `${4 - i}px`);
           starsLayer.appendChild(star);
         }
       }
@@ -92,9 +97,13 @@ const Index = () => {
       // Parallax effect on scroll
       window.addEventListener('scroll', () => {
         const yScroll = window.scrollY;
-        document.querySelector('.stars-layer-1')!.style.transform = `translateY(${yScroll * 0.3}px)`;
-        document.querySelector('.stars-layer-2')!.style.transform = `translateY(${yScroll * 0.2}px)`;
-        document.querySelector('.stars-layer-3')!.style.transform = `translateY(${yScroll * 0.1}px)`;
+        const layer1 = document.querySelector('.stars-layer-1') as HTMLElement;
+        const layer2 = document.querySelector('.stars-layer-2') as HTMLElement;
+        const layer3 = document.querySelector('.stars-layer-3') as HTMLElement;
+        
+        if (layer1) layer1.style.transform = `translateY(${yScroll * 0.3}px)`;
+        if (layer2) layer2.style.transform = `translateY(${yScroll * 0.2}px)`;
+        if (layer3) layer3.style.transform = `translateY(${yScroll * 0.1}px)`;
       });
     };
     

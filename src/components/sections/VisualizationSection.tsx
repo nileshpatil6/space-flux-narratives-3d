@@ -248,7 +248,8 @@ const VisualizationSection = () => {
         </div>
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         .globe-particle {
           opacity: 0;
           box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.7);
@@ -274,7 +275,8 @@ const VisualizationSection = () => {
         .data-connection:nth-child(3) {
           animation-delay: 2s;
         }
-      `}</style>
+        `}
+      </style>
     </section>
   );
 };

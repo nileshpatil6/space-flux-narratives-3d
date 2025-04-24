@@ -176,8 +176,8 @@ const Hero = () => {
         </a>
       </div>
       
-      {/* Add dynamic star field */}
-      <style jsx>{`
+      <style>
+        {`
         .hero-particle {
           position: absolute;
           background-color: white;
@@ -185,7 +185,8 @@ const Hero = () => {
           box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
           z-index: 0;
         }
-      `}</style>
+        `}
+      </style>
     </section>
   );
 };

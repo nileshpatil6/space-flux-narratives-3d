@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -71,7 +72,7 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout)
 }
 
-export const reducer = (state: State, action: Action): State => {
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
       return {
@@ -169,6 +170,7 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
+  // Create a real React state here, not relying on React being available in the global scope
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
