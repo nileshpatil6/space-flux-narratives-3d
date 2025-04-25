@@ -73,6 +73,11 @@ const HistoryCharts = ({ nasaData, meteoData }: HistoryChartsProps) => {
     },
   };
 
+  // Custom tooltip content component
+  const CustomTooltipContent = (props: any) => {
+    return <ChartTooltipContent {...props} indicator="line" />;
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
       <Card className="h-full">
@@ -88,14 +93,7 @@ const HistoryCharts = ({ nasaData, meteoData }: HistoryChartsProps) => {
               <XAxis dataKey="year" />
               <YAxis yAxisId="left" orientation="left" stroke="var(--color-temperature)" />
               <YAxis yAxisId="right" orientation="right" stroke="var(--color-precipitation)" />
-              <ChartTooltip 
-                content={props => (
-                  <ChartTooltipContent 
-                    {...props} 
-                    indicator="line"
-                  />
-                )} 
-              />
+              <Tooltip content={<CustomTooltipContent />} />
               <Legend />
               <Line
                 yAxisId="left"
@@ -132,14 +130,7 @@ const HistoryCharts = ({ nasaData, meteoData }: HistoryChartsProps) => {
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis dataKey="year" />
               <YAxis />
-              <ChartTooltip 
-                content={props => (
-                  <ChartTooltipContent 
-                    {...props} 
-                    indicator="line"
-                  />
-                )} 
-              />
+              <Tooltip content={<CustomTooltipContent />} />
               <Legend />
               <Line
                 type="monotone"
