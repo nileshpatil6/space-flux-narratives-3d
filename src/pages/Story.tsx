@@ -17,21 +17,25 @@ import HistoryCharts from "@/components/climate/HistoryCharts";
 const Story = () => {
   const [location, setLocation] = useState("");
   const [searchedLocation, setSearchedLocation] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data, isPending, isError, error, refetch } = useQuery<ClimateData>({
+  const { data, isPending, isError, error } = useQuery<ClimateData>({
     queryKey: ["climateData", searchedLocation],
     queryFn: () => getClimateData(searchedLocation),
     enabled: !!searchedLocation,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!location.trim()) {
       toast.error("Please enter a location name");
       return;
     }
+    
+    setIsSubmitting(true);
     setSearchedLocation(location);
+    setIsSubmitting(false);
   };
 
   return (
@@ -57,10 +61,10 @@ const Story = () => {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="flex-1"
-                disabled={isPending}
+                disabled={isPending || isSubmitting}
               />
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
+              <Button type="submit" disabled={isPending || isSubmitting || !location.trim()}>
+                {isPending || isSubmitting ? (
                   <span className="animate-pulse">Loading...</span>
                 ) : (
                   <>
