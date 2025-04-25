@@ -1,7 +1,7 @@
 
 import { useRef, useEffect } from 'react';
 import { setupFadeInAnimations } from '../../lib/gsapUtils';
-import { Tree, TreePine, TreeDeciduous, Globe, Cloud } from 'lucide-react';
+import { Trees, TreePine, TreeDeciduous, Globe, Cloud } from 'lucide-react';
 import gsap from 'gsap';
 
 const CallToAction = () => {
@@ -172,7 +172,7 @@ const CallToAction = () => {
           
           <div className="flex justify-center items-end space-x-4 md:space-x-8 h-32 relative py-4">
             {[...Array(7)].map((_, i) => {
-              const treeTypes = [TreePine, TreeDeciduous, Tree];
+              const treeTypes = [TreePine, TreeDeciduous, Trees];
               const TreeComponent = treeTypes[i % treeTypes.length];
               const size = 24 + Math.floor(i / 2) * 8;
               
@@ -213,7 +213,8 @@ const CallToAction = () => {
         </div>
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         @keyframes nebulaMove {
           0% { transform: translate(0, 0); }
           50% { transform: translate(5%, 5%); }
@@ -227,7 +228,8 @@ const CallToAction = () => {
         .nebula-bg:nth-of-type(2) {
           animation-delay: -10s;
         }
-      `}</style>
+      `}
+      </style>
     </section>
   );
 };

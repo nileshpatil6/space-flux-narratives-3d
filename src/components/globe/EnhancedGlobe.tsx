@@ -15,20 +15,24 @@ const Earth = () => {
   const [loaded, setLoaded] = useState(false);
 
   // Use drei's useTexture hook for better texture loading
-  const textures = useTexture({
-    earthMap: '/textures/earth_daymap.jpg',
-    normalMap: '/textures/earth_normal.jpg',
-    specularMap: '/textures/earth_specular.jpg',
-    cloudsMap: '/textures/earth_clouds.jpg',
-    bumpMap: '/textures/earth_bump.jpg'
-  }, (texturesList) => {
-    setLoaded(true);
-    console.log("All textures loaded successfully");
-  }, (error) => {
-    console.warn("Error loading textures:", error);
-    // We'll still set loaded to true so we can display fallback materials
-    setLoaded(true);
-  });
+  const textures = useTexture(
+    {
+      earthMap: '/textures/earth_daymap.jpg',
+      normalMap: '/textures/earth_normal.jpg',
+      specularMap: '/textures/earth_specular.jpg',
+      cloudsMap: '/textures/earth_clouds.jpg',
+      bumpMap: '/textures/earth_bump.jpg'
+    },
+    (texturesList) => {
+      setLoaded(true);
+      console.log("All textures loaded successfully");
+    },
+    (error) => {
+      console.warn("Error loading textures:", error);
+      // We'll still set loaded to true so we can display fallback materials
+      setLoaded(true);
+    }
+  );
 
   useFrame(({ clock }) => {
     if (earthRef.current) {
