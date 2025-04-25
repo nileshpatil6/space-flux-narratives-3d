@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from '../ui/ThemeToggle';
 import { Menu } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,8 +17,6 @@ const Navbar = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Story', href: '/story' },
     { name: 'Introduction', href: '#introduction' },
     { name: 'Methodology', href: '#methodology' },
     { name: 'Visualizations', href: '#visualizations' },
@@ -35,31 +32,22 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
+            <a href="#" className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-green-400 animate-pulse-glow"></div>
               <span className="font-bold text-xl">Climate Story</span>
-            </Link>
+            </a>
           </div>
           
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  {item.href.startsWith('#') ? (
-                    <a 
-                      href={item.href}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {item.name}
-                    </a>
-                  ) : (
-                    <Link 
-                      to={item.href}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {item.name}
-                    </Link>
-                  )}
+                  <a 
+                    href={item.href}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {item.name}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -85,23 +73,13 @@ const Navbar = () => {
           <ul className="flex flex-col space-y-4 px-4">
             {navItems.map((item) => (
               <li key={item.name}>
-                {item.href.startsWith('#') ? (
-                  <a 
-                    href={item.href}
-                    className="block py-2 hover:text-primary"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link 
-                    to={item.href}
-                    className="block py-2 hover:text-primary"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                )}
+                <a 
+                  href={item.href}
+                  className="block py-2 hover:text-primary"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.name}
+                </a>
               </li>
             ))}
           </ul>
