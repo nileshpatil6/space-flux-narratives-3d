@@ -15,24 +15,19 @@ const Earth = () => {
   const [loaded, setLoaded] = useState(false);
 
   // Use drei's useTexture hook for better texture loading
-  const textures = useTexture(
-    {
-      earthMap: '/textures/earth_daymap.jpg',
-      normalMap: '/textures/earth_normal.jpg',
-      specularMap: '/textures/earth_specular.jpg',
-      cloudsMap: '/textures/earth_clouds.jpg',
-      bumpMap: '/textures/earth_bump.jpg'
-    },
-    (texturesList) => {
-      setLoaded(true);
-      console.log("All textures loaded successfully");
-    },
-    (error) => {
-      console.warn("Error loading textures:", error);
-      // We'll still set loaded to true so we can display fallback materials
-      setLoaded(true);
-    }
-  );
+  const textures = useTexture({
+    earthMap: '/textures/earth_daymap.jpg',
+    normalMap: '/textures/earth_normal.jpg',
+    specularMap: '/textures/earth_specular.jpg',
+    cloudsMap: '/textures/earth_clouds.jpg',
+    bumpMap: '/textures/earth_bump.jpg'
+  });
+  
+  // Set loaded state when textures are ready
+  useEffect(() => {
+    setLoaded(true);
+    console.log("All textures loaded successfully");
+  }, [textures]);
 
   useFrame(({ clock }) => {
     if (earthRef.current) {
@@ -126,9 +121,15 @@ const OceanCurrents = () => {
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         
         return (
-          <line key={i} geometry={geometry}>
-            <lineBasicMaterial attach="material" color={i % 2 === 0 ? 0x3887BE : 0x29ABCA} linewidth={2} transparent opacity={0.7} />
-          </line>
+          <primitive key={i} object={new THREE.Line(
+            geometry,
+            new THREE.LineBasicMaterial({ 
+              color: i % 2 === 0 ? 0x3887BE : 0x29ABCA, 
+              linewidth: 2,
+              transparent: true,
+              opacity: 0.7
+            })
+          )} />
         );
       })}
     </group>
