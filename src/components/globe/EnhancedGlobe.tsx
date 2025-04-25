@@ -1,7 +1,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, useTexture, Stars } from '@react-three/drei';
+import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -12,22 +12,57 @@ const EARTH_SEGMENTS = 64;
 const Earth = () => {
   const earthRef = useRef<THREE.Group>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
+  const [textures, setTextures] = useState<{
+    earthMap: THREE.Texture | null;
+    normalMap: THREE.Texture | null;
+    specularMap: THREE.Texture | null;
+    cloudsMap: THREE.Texture | null;
+    bumpMap: THREE.Texture | null;
+  }>({
+    earthMap: null,
+    normalMap: null,
+    specularMap: null,
+    cloudsMap: null,
+    bumpMap: null
+  });
   const [loaded, setLoaded] = useState(false);
 
-  // Use drei's useTexture hook for better texture loading
-  const textures = useTexture({
-    earthMap: '/textures/earth_daymap.jpg',
-    normalMap: '/textures/earth_normal.jpg',
-    specularMap: '/textures/earth_specular.jpg',
-    cloudsMap: '/textures/earth_clouds.jpg',
-    bumpMap: '/textures/earth_bump.jpg'
-  });
-  
-  // Set loaded state when textures are ready
+  // Load textures manually to handle errors better
   useEffect(() => {
-    setLoaded(true);
-    console.log("All textures loaded successfully");
-  }, [textures]);
+    const textureLoader = new THREE.TextureLoader();
+    const loadTexture = (url: string) => {
+      return new Promise<THREE.Texture>((resolve, reject) => {
+        textureLoader.load(
+          url,
+          (texture) => resolve(texture),
+          undefined,
+          (error) => {
+            console.warn(`Failed to load texture: ${url}`, error);
+            reject(error);
+          }
+        );
+      });
+    };
+
+    // Try to load all textures and handle failures
+    Promise.all([
+      loadTexture('/textures/earth_daymap.jpg').catch(() => null),
+      loadTexture('/textures/earth_normal.jpg').catch(() => null),
+      loadTexture('/textures/earth_specular.jpg').catch(() => null),
+      loadTexture('/textures/earth_clouds.jpg').catch(() => null),
+      loadTexture('/textures/earth_bump.jpg').catch(() => null)
+    ]).then(([earthMap, normalMap, specularMap, cloudsMap, bumpMap]) => {
+      setTextures({
+        earthMap,
+        normalMap,
+        specularMap,
+        cloudsMap,
+        bumpMap
+      });
+      setLoaded(true);
+      console.log("Texture loading complete, some may have fallen back to null");
+    });
+  }, []);
 
   useFrame(({ clock }) => {
     if (earthRef.current) {
