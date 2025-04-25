@@ -21,6 +21,7 @@ const Navbar = () => {
     { name: 'Methodology', href: '#methodology' },
     { name: 'Visualizations', href: '#visualizations' },
     { name: 'Take Action', href: '#action' },
+    { name: 'Story', href: '/story' },
   ];
 
   return (
