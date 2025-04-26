@@ -1,157 +1,124 @@
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import {
-  Bar,
-  Line,
-  ComposedChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AnnualClimateData, AnnualTemperatureData } from "@/services/climateDataService";
+import { Bar, BarChart, CartesianGrid, Label, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface HistoryChartsProps {
-  nasaData: Record<string, { avg_temperature_c: number | null; total_precipitation_mm: number }>;
-  meteoData: Record<string, { avg_max_temp: number | null; avg_min_temp: number | null }>;
+  nasaData: Record<string, AnnualClimateData>;
+  meteoData: Record<string, AnnualTemperatureData>;
 }
 
 const HistoryCharts = ({ nasaData, meteoData }: HistoryChartsProps) => {
-  // Process NASA POWER data for the chart
-  const nasaChartData = Object.entries(nasaData).map(([year, data]) => ({
+  // Prepare temperature chart data
+  const temperatureData = Object.keys(nasaData).map(year => {
+    const nasaEntry = nasaData[year];
+    const meteoEntry = meteoData[year] || { avg_max_temp: null, avg_min_temp: null };
+    
+    return {
+      year,
+      avgTemp: nasaEntry.avg_temperature_c,
+      maxTemp: meteoEntry.avg_max_temp,
+      minTemp: meteoEntry.avg_min_temp,
+    };
+  });
+
+  // Prepare precipitation chart data
+  const precipitationData = Object.keys(nasaData).map(year => ({
     year,
-    temperature: data.avg_temperature_c,
-    precipitation: data.total_precipitation_mm,
+    precipitation: nasaData[year].total_precipitation_mm,
   }));
-
-  // Process Open Meteo data for the chart
-  const meteoChartData = Object.entries(meteoData).map(([year, data]) => ({
-    year,
-    maxTemp: data.avg_max_temp,
-    minTemp: data.avg_min_temp,
-  }));
-
-  const chartConfig = {
-    temperature: {
-      label: "Temperature (°C)",
-      theme: {
-        light: "#ff4d4f",
-        dark: "#ff7875",
-      },
-    },
-    precipitation: {
-      label: "Precipitation (mm)",
-      theme: {
-        light: "#1890ff",
-        dark: "#69c0ff",
-      },
-    },
-    maxTemp: {
-      label: "Max Temperature (°C)",
-      theme: {
-        light: "#ff4d4f",
-        dark: "#ff7875",
-      },
-    },
-    minTemp: {
-      label: "Min Temperature (°C)",
-      theme: {
-        light: "#1890ff",
-        dark: "#69c0ff",
-      },
-    },
-  };
-
-  // Custom tooltip content component
-  const CustomTooltipContent = (props: any) => {
-    return <ChartTooltipContent {...props} indicator="line" />;
-  };
 
   return (
-    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-      <Card className="h-full">
+    <div className="grid gap-6 lg:grid-cols-2">
+      {/* Temperature Chart */}
+      <Card>
         <CardHeader>
-          <CardTitle>NASA POWER: 10-Year Annual Averages</CardTitle>
+          <CardTitle>Temperature Trends</CardTitle>
+          <CardDescription>10-year historical temperature data</CardDescription>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ChartContainer
-            config={chartConfig}
-          >
-            <ComposedChart data={nasaChartData}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis dataKey="year" />
-              <YAxis yAxisId="left" orientation="left" stroke="var(--color-temperature)" />
-              <YAxis yAxisId="right" orientation="right" stroke="var(--color-precipitation)" />
-              <Tooltip content={<CustomTooltipContent />} />
-              <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="temperature"
-                name="Average Temperature"
-                stroke="var(--color-temperature)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-              <Bar
-                yAxisId="right"
-                dataKey="precipitation"
-                name="Total Precipitation"
-                fill="var(--color-precipitation)"
-                opacity={0.7}
-                barSize={20}
-              />
-            </ComposedChart>
-          </ChartContainer>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={temperatureData}
+                margin={{ top: 5, right: 30, left: 0, bottom: 25 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="year">
+                  <Label value="Year" position="insideBottom" offset={-20} />
+                </XAxis>
+                <YAxis>
+                  <Label 
+                    value="Temperature (°C)" 
+                    position="insideLeft"
+                    angle={-90} 
+                    style={{ textAnchor: 'middle' }}
+                  />
+                </YAxis>
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="avgTemp" 
+                  stroke="#8884d8" 
+                  name="Average Temperature" 
+                  strokeWidth={2} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="maxTemp" 
+                  stroke="#ff7300" 
+                  name="Average Max" 
+                  strokeWidth={1.5}
+                  strokeDasharray="5 5"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="minTemp" 
+                  stroke="#82ca9d" 
+                  name="Average Min" 
+                  strokeWidth={1.5} 
+                  strokeDasharray="5 5"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="h-full">
+      {/* Precipitation Chart */}
+      <Card>
         <CardHeader>
-          <CardTitle>Open-Meteo: 10-Year Max/Min Averages</CardTitle>
+          <CardTitle>Annual Precipitation</CardTitle>
+          <CardDescription>10-year historical precipitation data</CardDescription>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <ChartContainer
-            config={chartConfig}
-          >
-            <ComposedChart data={meteoChartData}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis dataKey="year" />
-              <YAxis />
-              <Tooltip content={<CustomTooltipContent />} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="maxTemp"
-                name="Average Max Temperature"
-                stroke="var(--color-maxTemp)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="minTemp"
-                name="Average Min Temperature"
-                stroke="var(--color-minTemp)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </ComposedChart>
-          </ChartContainer>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={precipitationData}
+                margin={{ top: 5, right: 30, left: 0, bottom: 25 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="year">
+                  <Label value="Year" position="insideBottom" offset={-20} />
+                </XAxis>
+                <YAxis>
+                  <Label 
+                    value="Precipitation (mm)" 
+                    position="insideLeft"
+                    angle={-90} 
+                    style={{ textAnchor: 'middle' }}
+                  />
+                </YAxis>
+                <Tooltip />
+                <Bar 
+                  dataKey="precipitation" 
+                  fill="#4f8ed0" 
+                  name="Total Precipitation"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
     </div>
