@@ -40,7 +40,7 @@ export default function Story() {
               onChange={(e) => setLocation(e.target.value)}
               className="pl-10"
               disabled={isPending}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && location.trim()) {
                   handleSearch();
                 }
