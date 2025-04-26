@@ -65,6 +65,7 @@ export default function Story() {
           </div>
         )}
 
+        {/* Only show the loading state if a search has been initiated */}
         {isPending && searchTerm && (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -72,6 +73,7 @@ export default function Story() {
           </div>
         )}
 
+        {/* Only show climate data if it exists */}
         {climateData && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Card>
@@ -129,6 +131,13 @@ export default function Story() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Show initial message when no search has been made yet */}
+        {!searchTerm && !isPending && (
+          <div className="text-center py-16">
+            <p className="text-xl text-muted-foreground">Enter a location and press Search to view climate data</p>
           </div>
         )}
       </div>
